@@ -13,7 +13,9 @@ export const userAuth = (req: Request, res: Response, next: NextFunction) => {
 
     try {
 
-        const token = req?.cookies?.CineSageToken
+
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
         if (token) {
             const user = verifyToken(token)
             req.user = user
@@ -24,10 +26,12 @@ export const userAuth = (req: Request, res: Response, next: NextFunction) => {
             } else {
                 throw new Error('User is not authorized')
             }
+        } else {
+            throw new Error('User is not authorized')
         }
 
     } catch (error: any) {
-        console.log(error, 'here getting error')
+
         res.status(error?.status || 500).json({ message: error?.message })
     }
 }

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import Users, { IUsers } from '../model/UsersModel'
-import { genereateToken, verifyToken } from '../_lib/jwt'
+import { genereateToken } from '../_lib/jwt'
 import axios from 'axios'
 
 
@@ -10,8 +10,7 @@ export const loginController = async (req: Request, res: Response) => {
 
         const data = req?.body
         const userData = await Users.findOne({ email: data?.email })
-        let dt = await Users.find()
-        console.log(dt)
+
         if (!userData) {
             res.json({ message: 'Invalid username or password' })
         } else {
@@ -19,13 +18,13 @@ export const loginController = async (req: Request, res: Response) => {
             if (userData?.role === 'admin' && userData?.password === data?.password) {
                 const adminId = await Users.findOne({ email: userData?.email, role: 'admin' })
                 const token = genereateToken({ role: 'admin', email: userData?.email, id: adminId })
-                res.cookie('CineSageToken', token, { maxAge: 1000 * 60 * 60 * 24, httpOnly: true, sameSite: "none", secure: true })
-                res.status(200).json({ status: 'ok', message: 'login success', userData, role: userData?.role })
+
+                res.status(200).json({ status: 'ok', message: 'login success', userData, role: userData?.role, token })
             } else {
                 if (userData?.password === data?.password) {
                     const token = genereateToken({ role: 'user', email: userData?.email })
-                    res.cookie('CineSageToken', token, { maxAge: 1000 * 60 * 60 * 24, httpOnly: true, sameSite: "none", secure: true })
-                    res.status(200).json({ status: 'ok', message: 'login success', userData, role: userData?.role })
+
+                    res.status(200).json({ status: 'ok', message: 'login success', userData, role: userData?.role, token })
                 } else {
 
                     res.json({ message: 'Invalid username or password' })
@@ -59,7 +58,7 @@ export const signOutController = (req: Request, res: Response) => {
 
     try {
 
-        res.cookie('CineSageToken', '', { maxAge: 1 })
+
         res.status(200).json({ status: 'ok', message: 'logout successfull' })
 
 
@@ -113,8 +112,9 @@ export const loginWithGoogle = async (req: Request, res: Response) => {
 
                     const token = genereateToken({ id: newUser._id, email: newUser?.email })
 
-                    res.cookie('CineSageToken', token, { maxAge: 1000 * 60 * 60 * 24, httpOnly: true, sameSite: "none", secure: true })
-                    res.json({ status: 'ok', userData: newUser }).status(200)
+                    //res.cookie('CineSageToken', token, { maxAge: 1000 * 60 * 60 * 24, httpOnly: true, sameSite: "none", secure: true })
+
+                    res.json({ status: 'ok', userData: newUser, token }).status(200)
                 }
             }
 
