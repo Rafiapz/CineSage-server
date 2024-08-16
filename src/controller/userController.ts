@@ -89,9 +89,7 @@ export const loginWithGoogle = async (req: Request, res: Response) => {
 
                 const token = genereateToken({ id: existingUser._id, email: existingUser?.email })
 
-                res.cookie('CineSageToken', token, { maxAge: 1000 * 60 * 60 * 24, httpOnly: true, sameSite: "none", secure: true })
-
-                res.json({ status: 'ok', userData: existingUser }).status(200)
+                res.json({ status: 'ok', userData: existingUser, token }).status(200)
 
             } else {
 
